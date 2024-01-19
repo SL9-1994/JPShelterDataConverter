@@ -8,23 +8,25 @@ use std::path::Path;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Record {
-    code: String,
-    name: String,
-    no: String,
-    facility_name: String,
-    address: String,
-    flood: String,
-    landslide: String,
-    high_tide: String,
-    earthquake: String,
-    tsunami: String,
-    large_fire: String,
-    inland_flood: String,
-    volcanic_phenomena: String,
-    same_address_as_evacuation_site: String,
-    latitude: String,
-    longitude: String,
-    remarks: String,
+    市町村コード: String,           // 市町村コード
+    都道府県名及び市町村名: String, // 都道府県名及び市町村名
+    市町村内の番号: String,         // 市町村内の番号
+    #[serde(rename = "施設・場所名")]
+    施設_場所名: String, // 施設・場所名
+    住所: String,                   // 住所
+    洪水: String,                   // 洪水
+    #[serde(rename = "崖崩れ、土石流及び地滑り")]
+    崖崩れ_土石流及び地滑り: String, // 崖崩れ、土石流及び地滑り
+    高潮: String,                   // 高潮
+    地震: String,                   // 地震
+    津波: String,                   // 津波
+    大規模火事: String,             // 大規模火事
+    内水氾濫: String,               // 内水氾濫
+    火山現象: String,               // 火山現象
+    指定避難所との住所同一: String, // 指定避難所との住所同一
+    緯度: String,                   // 緯度
+    経度: String,                   // 経度
+    備考: String,                   // 備考
 }
 
 fn read_file_path() -> Result<String, Box<dyn Error>> {
@@ -50,8 +52,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let file = File::open(&path)?;
     let mut reader = ReaderBuilder::new().has_headers(false).from_reader(file);
 
-    let mut records = Vec::new();
-    for result in reader.deserialize() {
+    let mut records = vec![];
+
+    // for result in reader.deserialize() {
+    //     let record: Record = result?;
+    //     records.push(record);
+    // }
+
+    for (i, result) in reader.deserialize().enumerate() {
+        if i == 0 {
+            // 1行目はヘッダーなのでスキップ
+            continue;
+        }
         let record: Record = result?;
         records.push(record);
     }
